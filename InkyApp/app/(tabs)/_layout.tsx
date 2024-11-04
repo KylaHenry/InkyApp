@@ -18,8 +18,7 @@ export default function TabLayout() {
         name="home"
         options={{
           title: 'Home',
-         <Image source={require('./assests/icons/homeicon.png')}/>
-          ),
+        
         }}
       />
       <Tabs.Screen
