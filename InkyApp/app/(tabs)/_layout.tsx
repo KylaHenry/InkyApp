@@ -28,10 +28,11 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
           ),
         }}
       />
+
       <Tabs.Screen
         name="search"
         options={{
@@ -41,6 +42,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="library"
         options={{
@@ -50,6 +52,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="write"
         options={{
@@ -59,6 +62,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="notifications"
         options={{
@@ -68,6 +72,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="profile"
         options={{
@@ -77,6 +82,7 @@ export default function TabLayout() {
           ),
         }}
       />
+      
     </Tabs>
   );
 }
