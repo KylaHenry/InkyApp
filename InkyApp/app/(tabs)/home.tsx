@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Image, StyleSheet, Platform } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
@@ -9,7 +8,7 @@ import { ThemedView } from '@/components/ThemedView';
 export default function HomeScreen() {
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: '#FFFFFF', dark: '#242124' }}
       headerImage={
         <Image
           source={require('@/assets/images/partial-react-logo.png')}
@@ -17,7 +16,6 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
         <ThemedText type="title">Welcome to Inky!</ThemedText>
         <HelloWave />
       </ThemedView>
@@ -33,9 +31,9 @@ export default function HomeScreen() {
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
+        <ThemedText type="subtitle">Step 2: Search</ThemedText>
         <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
+          Tap the Search tab to learn more about what's included in this starter app.
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
@@ -70,20 +68,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
 });
-=======
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform, View } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import React from 'react'
 
-const Write = () => {
-    return (
-        <View>
-            <text>Write</text>
-        </View>
-    )
-}
 
-export default Write;
->>>>>>> 45938a524688b05e7229688e505e01057eeca1b7

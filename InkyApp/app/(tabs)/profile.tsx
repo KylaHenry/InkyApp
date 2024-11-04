@@ -4,12 +4,12 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import React from 'react'
 
-const Library = () => {
+const Profile = () => {
     return (
         <View>
-            <text>Library</text>
+            <text>Profile</text>
         </View>
     )
 }
 
-export default Library;
+export default Profile;
