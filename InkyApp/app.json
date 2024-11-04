@@ -29,7 +29,17 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-asset"
+      {
+        "assets":["./assets/images/homeicon.png"],
+        "assets":["./assets/images/libraryicon.png"],
+        "assets":["./assets/images/notificationsicon.png"],
+        "assets":["./assets/images/profileicon.png"],
+        "assets":["./assets/images/searchicon.png"],
+        "assets":["./assets/images/writeicon.png"]
+
+      }
     ],
     "experiments": {
       "typedRoutes": true
