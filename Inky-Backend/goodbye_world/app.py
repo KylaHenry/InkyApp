@@ -50,7 +50,7 @@ def lambda_handler(event, context):
         return {
             "statusCode": 200,
             "body": json.dumps({
-                "message": "goodbye world woo coo",
+                "message": "goodbye world",
                 "hello_response": hello_response  # Include the hello response in the goodbye response
             }),
         }

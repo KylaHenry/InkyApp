@@ -59,17 +59,51 @@ Resources:
             Auth:
               ApiKeyRequired: false
 
+  UserCredReceivePrivateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: Functions/UserCred-Receive-Private/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Policies:
+        - AWSLambdaBasicExecutionRole
 
-
-
-
-
+  UserCredSendPublicFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: Functions/UserCred-Send-Public/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "lambda:InvokeFunction"
+              Resource: !GetAtt UserCredReceivePrivateFunction.Arn
+      Environment:
+        Variables:
+          PRIVATE_FUNCTION_ARN: !GetAtt UserCredReceivePrivateFunction.Arn
+      Events:
+        UserCredSendPublicEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InkyApi
+            Path: /usercredsendpublic
+            Method: post
+            Auth:
+              ApiKeyRequired: false
 
   MyUsagePlan:
     Type: AWS::ApiGateway::UsagePlan
     Properties:
       UsagePlanName: MyApiUsagePlan
-      Description: "Usage plan for the HelloWorld API"
+      Description: "Usage plan for the Inky API"
       ApiStages:
         - ApiId: !Ref InkyApi
           Stage: !Ref InkyApiProdStage  # Reference the correct stage
@@ -89,25 +123,22 @@ Resources:
 
 Outputs:
   InkyApi:
-    Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value: !Sub "https://${InkyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  
-  
+    Description: API Gateway endpoint URL for Prod stage
+    Value: !Sub "https://${InkyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
   HelloWorldFunction:
     Description: Hello World Lambda Function ARN
     Value: !GetAtt HelloWorldFunction.Arn
   GoodbyeWorldFunction:
     Description: Goodbye World Lambda Function ARN
     Value: !GetAtt GoodbyeWorldFunction.Arn
-
-
-
-
-
-
-
+  UserCredReceivePrivateFunctionArn:
+    Description: UserCred Receive Private Function ARN
+    Value: !GetAtt UserCredReceivePrivateFunction.Arn
+  UserCredSendPublicFunctionArn:
+    Description: UserCred Send Public Function ARN
+    Value: !GetAtt UserCredSendPublicFunction.Arn
 
   HelloWorldFunctionIamRole:
     Description: Implicit IAM Role created for Hello World function
     Value: !GetAtt HelloWorldFunctionRole.Arn
-
