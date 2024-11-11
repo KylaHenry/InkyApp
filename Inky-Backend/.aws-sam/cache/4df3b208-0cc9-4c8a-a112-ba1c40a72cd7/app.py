@@ -20,7 +20,7 @@ def get_api_key():
 # Function to call the Hello API
 def call_hello_function(api_key):
     # URL of the Hello API
-    api_url = 'https://8n3b6jkgz7.execute-api.us-east-1.amazonaws.com/Prod/hello/'
+    api_url = 'https://a3hhejg2ij.execute-api.us-east-1.amazonaws.com/Prod/hello/'
 
     # Headers with the API key
     headers = {
@@ -50,7 +50,7 @@ def lambda_handler(event, context):
         return {
             "statusCode": 200,
             "body": json.dumps({
-                "message": "goodbye world woo coo",
+                "message": "goodbye world",
                 "hello_response": hello_response  # Include the hello response in the goodbye response
             }),
         }

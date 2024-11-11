@@ -49,6 +49,14 @@ Resources:
       Timeout: 10
       Layers:
         - arn:aws:lambda:us-east-1:831926586049:layer:requests:1
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "ssm:GetParameter"
+              Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/myapp/api_key"
       Events:
         GoodbyeWorld:
           Type: Api
@@ -67,8 +75,26 @@ Resources:
       Runtime: python3.9
       Architectures:
         - x86_64
+      Timeout: 60
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - subnet-0cf6afa526ab19556
+          - subnet-0038a371c59bbe948
+      Environment:
+        Variables:
+          DB_SECRET_NAME: inky-database-credentials  # Replace with your actual secret name
       Policies:
+        - AWSLambdaVPCAccessExecutionRole
         - AWSLambdaBasicExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "secretsmanager:GetSecretValue"
+              Resource: "arn:aws:secretsmanager:us-east-1:831926586049:secret:inky-database-credentials-tcd5JM"
+
 
   UserCredSendPublicFunction:
     Type: AWS::Serverless::Function
@@ -78,6 +104,7 @@ Resources:
       Runtime: python3.9
       Architectures:
         - x86_64
+      Timeout: 10
       Policies:
         - AWSLambdaBasicExecutionRole
         - Version: "2012-10-17"
@@ -99,6 +126,12 @@ Resources:
             Auth:
               ApiKeyRequired: false
 
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Lambda functions
+      VpcId: vpc-0214891ecbe0d52db  
+
   MyUsagePlan:
     Type: AWS::ApiGateway::UsagePlan
     Properties:
@@ -113,13 +146,6 @@ Resources:
     Properties:
       Enabled: true
       Name: MyApiKey
-
-  MyUsagePlanKey:
-    Type: AWS::ApiGateway::UsagePlanKey
-    Properties:
-      KeyId: !Ref MyApiKey
-      KeyType: API_KEY
-      UsagePlanId: !Ref MyUsagePlan
 
 Outputs:
   InkyApi:
