@@ -20,24 +20,31 @@ manifest_hash = "197b4deb87ffa3decd9f045926a86cd0"
 packagetype = "Zip"
 functions = ["GoodbyeWorldFunction"]
 
-[function_build_definitions.aeb51d23-03ac-4364-b6a7-3438901107d4]
+[function_build_definitions.bb65cbdd-b905-40bc-8a05-e7cade583664]
 codeuri = "/mnt/c/users/brian/Documents/Scripts/Projects/InkyApp/Inky-Backend/Functions/UserCred-Receive-Private"
 runtime = "python3.9"
 architecture = "x86_64"
 handler = "app.lambda_handler"
-source_hash = "17a678f0a5cdc7139805a1fea0157a8c73e52712d8a050840a1d67e080ed3a36"
 manifest_hash = "0e88a7a9cbf10e5130f09dd9b11f8cf5"
 packagetype = "Zip"
 functions = ["UserCredReceivePrivateFunction"]
 
-[function_build_definitions.203b6568-e6aa-44b9-af66-849c26ef41a8]
+[function_build_definitions.b45cd903-f87c-474f-a5ef-cb46b6780528]
 codeuri = "/mnt/c/users/brian/Documents/Scripts/Projects/InkyApp/Inky-Backend/Functions/UserCred-Send-Public"
 runtime = "python3.9"
 architecture = "x86_64"
 handler = "app.lambda_handler"
-source_hash = "bbf1619222a85a7de30f5184068b4efefd2b16d94d2a8990875981f94103a366"
 manifest_hash = "0e88a7a9cbf10e5130f09dd9b11f8cf5"
 packagetype = "Zip"
 functions = ["UserCredSendPublicFunction"]
+
+[function_build_definitions.f124259b-333b-421b-8696-206b53a1ecbd]
+codeuri = "/mnt/c/users/brian/Documents/Scripts/Projects/InkyApp/Inky-Backend/Functions/test-secret"
+runtime = "python3.9"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = "ece7f6698c118fd0996c7a10c6a4b3ef"
+packagetype = "Zip"
+functions = ["TestSecretFunction"]
 
 [layer_build_definitions]

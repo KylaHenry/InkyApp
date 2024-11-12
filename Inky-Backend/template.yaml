@@ -56,7 +56,8 @@ Resources:
             - Effect: "Allow"
               Action:
                 - "ssm:GetParameter"
-              Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/myapp/api_key"
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/myapp/api_key"
       Events:
         GoodbyeWorld:
           Type: Api
@@ -95,7 +96,6 @@ Resources:
                 - "secretsmanager:GetSecretValue"
               Resource: "arn:aws:secretsmanager:us-east-1:831926586049:secret:inky-database-credentials-tcd5JM"
 
-
   UserCredSendPublicFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -126,6 +126,48 @@ Resources:
             Auth:
               ApiKeyRequired: false
 
+  TestSecretFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: Functions/test-secret/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Timeout: 30
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - subnet-0cf6afa526ab19556
+          - subnet-0038a371c59bbe948
+      Environment:
+        Variables:
+          DB_HOST: 'inky-database.cxgmeo0oo52y.us-east-1.rds.amazonaws.com'
+          DB_PORT: '3306'
+          DB_NAME: 'StoryApp'  # Replace with your actual database name
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - AWSLambdaBasicExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "ssm:GetParameter"
+              Resource:
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/database/username"
+                - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/database/password"
+
+      Events:
+        TestSecretApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InkyApi
+            Path: /test-secret
+            Method: get
+            Auth:
+              ApiKeyRequired: false
+
   LambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -139,7 +181,7 @@ Resources:
       Description: "Usage plan for the Inky API"
       ApiStages:
         - ApiId: !Ref InkyApi
-          Stage: !Ref InkyApiProdStage  # Reference the correct stage
+          Stage: Prod  # Use the stage name directly
 
   MyApiKey:
     Type: AWS::ApiGateway::ApiKey
@@ -148,19 +190,22 @@ Resources:
       Name: MyApiKey
 
 Outputs:
-  InkyApi:
+  InkyApiUrl:
     Description: API Gateway endpoint URL for Prod stage
     Value: !Sub "https://${InkyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
 
-  HelloWorldFunction:
+  HelloWorldFunctionArn:
     Description: Hello World Lambda Function ARN
     Value: !GetAtt HelloWorldFunction.Arn
-  GoodbyeWorldFunction:
+
+  GoodbyeWorldFunctionArn:
     Description: Goodbye World Lambda Function ARN
     Value: !GetAtt GoodbyeWorldFunction.Arn
+
   UserCredReceivePrivateFunctionArn:
     Description: UserCred Receive Private Function ARN
     Value: !GetAtt UserCredReceivePrivateFunction.Arn
+
   UserCredSendPublicFunctionArn:
     Description: UserCred Send Public Function ARN
     Value: !GetAtt UserCredSendPublicFunction.Arn
@@ -168,3 +213,7 @@ Outputs:
   HelloWorldFunctionIamRole:
     Description: Implicit IAM Role created for Hello World function
     Value: !GetAtt HelloWorldFunctionRole.Arn
+
+  TestSecretFunctionArn:
+    Description: Test Secret Function ARN
+    Value: !GetAtt TestSecretFunction.Arn

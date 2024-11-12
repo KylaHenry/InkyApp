@@ -4,12 +4,14 @@ import os
 import boto3
 import bcrypt
 import logging
+import time
 
 # Configure logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
+    start_time = time.time()
     logger.info("Received event: %s", json.dumps(event))
 
     # Extract credentials from the event
@@ -25,9 +27,10 @@ def lambda_handler(event, context):
 
     # Hash the password
     try:
+        hash_start_time = time.time()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         hashed_password_str = hashed_password.decode('utf-8')
-        logger.info("Password hashed successfully.")
+        logger.info("Password hashed successfully. Time taken: %s seconds", time.time() - hash_start_time)
     except Exception as e:
         logger.error("Error hashing password: %s", str(e))
         return {
@@ -41,6 +44,7 @@ def lambda_handler(event, context):
     logger.info("Retrieving database credentials from Secrets Manager.")
 
     # Create a Secrets Manager client
+    secret_retrieval_start_time = time.time()
     session = boto3.session.Session()
     secrets_client = session.client(
         service_name='secretsmanager',
@@ -50,7 +54,7 @@ def lambda_handler(event, context):
     try:
         secret_value = secrets_client.get_secret_value(SecretId=secret_name)
         db_credentials = json.loads(secret_value['SecretString'])
-        logger.info("Database credentials retrieved successfully.")
+        logger.info("Database credentials retrieved successfully. Time taken: %s seconds", time.time() - secret_retrieval_start_time)
     except Exception as e:
         logger.error("Error retrieving database credentials: %s", str(e))
         return {
@@ -67,6 +71,7 @@ def lambda_handler(event, context):
 
     # Connect to the RDS database
     try:
+        db_connection_start_time = time.time()
         connection = pymysql.connect(
             host=db_host,
             user=db_username,
@@ -75,7 +80,7 @@ def lambda_handler(event, context):
             port=db_port,
             connect_timeout=5
         )
-        logger.info("Connected to the database successfully.")
+        logger.info("Connected to the database successfully. Time taken: %s seconds", time.time() - db_connection_start_time)
     except pymysql.MySQLError as e:
         logger.error("Database connection failed: %s", str(e))
         return {
@@ -85,12 +90,13 @@ def lambda_handler(event, context):
 
     # Insert new user into the UserCred table
     try:
+        db_insert_start_time = time.time()
         with connection.cursor() as cursor:
             sql = "INSERT INTO UserCred (email, password) VALUES (%s, %s)"
             cursor.execute(sql, (email, hashed_password_str))
             connection.commit()
             user_id = cursor.lastrowid
-            logger.info("User inserted with user_id: %s", user_id)
+            logger.info("User inserted with user_id: %s. Time taken: %s seconds", user_id, time.time() - db_insert_start_time)
     except Exception as e:
         logger.error("Failed to insert user: %s", str(e))
         return {
@@ -100,6 +106,9 @@ def lambda_handler(event, context):
     finally:
         connection.close()
         logger.info("Database connection closed.")
+
+    # Log the total execution time
+    logger.info("Lambda execution completed in %s seconds", time.time() - start_time)
 
     # Return success response
     return {
