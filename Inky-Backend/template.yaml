@@ -85,7 +85,7 @@ Resources:
           - subnet-0038a371c59bbe948
       Environment:
         Variables:
-          DB_SECRET_NAME: inky-database-credentials  # Replace with your actual secret name
+          DB_PARAMETER_NAME: "/database/credentials"  # Parameter Store name
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - AWSLambdaBasicExecutionRole
@@ -93,8 +93,8 @@ Resources:
           Statement:
             - Effect: "Allow"
               Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:us-east-1:831926586049:secret:inky-database-credentials-tcd5JM"
+                - "ssm:GetParameter"
+              Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/database/credentials"
 
   UserCredSendPublicFunction:
     Type: AWS::Serverless::Function
@@ -125,6 +125,25 @@ Resources:
             Method: post
             Auth:
               ApiKeyRequired: false
+
+  MyUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      UsagePlanName: MyApiUsagePlan
+      Description: "Usage plan for the Inky API with API key requirement"
+      ApiStages:
+        - ApiId: !Ref InkyApi
+          Stage: Prod
+
+  MyApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Enabled: true
+      Name: MyApiKey
+      StageKeys:
+        - RestApiId: !Ref InkyApi
+          StageName: Prod
+
 
   TestSecretFunction:
     Type: AWS::Serverless::Function

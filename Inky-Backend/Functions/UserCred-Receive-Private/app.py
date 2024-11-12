@@ -38,23 +38,18 @@ def lambda_handler(event, context):
             'body': json.dumps({'error': 'Error hashing password.', 'message': str(e)})
         }
 
-    # Retrieve database credentials from AWS Secrets Manager
-    secret_name = os.environ['DB_SECRET_NAME']
-    region_name = os.environ['AWS_REGION']
-    logger.info("Retrieving database credentials from Secrets Manager.")
+    # Retrieve database credentials from Parameter Store
+    parameter_name = os.environ['DB_PARAMETER_NAME']
+    logger.info("Retrieving database credentials from Parameter Store.")
 
-    # Create a Secrets Manager client
-    secret_retrieval_start_time = time.time()
-    session = boto3.session.Session()
-    secrets_client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
+    # Create an SSM client
+    parameter_retrieval_start_time = time.time()
+    ssm_client = boto3.client('ssm')
 
     try:
-        secret_value = secrets_client.get_secret_value(SecretId=secret_name)
-        db_credentials = json.loads(secret_value['SecretString'])
-        logger.info("Database credentials retrieved successfully. Time taken: %s seconds", time.time() - secret_retrieval_start_time)
+        parameter = ssm_client.get_parameter(Name=parameter_name, WithDecryption=True)
+        db_credentials = json.loads(parameter['Parameter']['Value'])
+        logger.info("Database credentials retrieved successfully. Time taken: %s seconds", time.time() - parameter_retrieval_start_time)
     except Exception as e:
         logger.error("Error retrieving database credentials: %s", str(e))
         return {
