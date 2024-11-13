@@ -76,7 +76,7 @@ Resources:
       Runtime: python3.9
       Architectures:
         - x86_64
-      Timeout: 60
+      Timeout: 10
       VpcConfig:
         SecurityGroupIds:
           - !Ref LambdaSecurityGroup
@@ -125,6 +125,36 @@ Resources:
             Method: post
             Auth:
               ApiKeyRequired: false
+
+
+  CreateUsernameFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: Functions/UserInformation/CreateUsername
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Timeout: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - subnet-0cf6afa526ab19556
+          - subnet-0038a371c59bbe948
+      Environment:
+        Variables:
+          DB_PARAMETER_NAME: "/database/credentials"  # Parameter Store name
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - AWSLambdaBasicExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "ssm:GetParameter"
+              Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/database/credentials"
+
 
   MyApiKey:
     Type: AWS::ApiGateway::ApiKey

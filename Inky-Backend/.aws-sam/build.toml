@@ -45,4 +45,13 @@ manifest_hash = "197b4deb87ffa3decd9f045926a86cd0"
 packagetype = "Zip"
 functions = ["GoodbyeWorldFunction"]
 
+[function_build_definitions.b3a35c91-99d6-45fe-9097-50c88934d3fe]
+codeuri = "/mnt/c/users/brian/Documents/Scripts/Projects/InkyApp/Inky-Backend/Functions/UserInformation/CreateUsername"
+runtime = "python3.9"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = "d41d8cd98f00b204e9800998ecf8427e"
+packagetype = "Zip"
+functions = ["CreateUsernameFunction"]
+
 [layer_build_definitions]
