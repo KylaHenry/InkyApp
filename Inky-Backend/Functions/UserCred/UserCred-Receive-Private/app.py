@@ -20,7 +20,8 @@ def lambda_handler(event, context):
 
     if not email or not password:
         logger.error("Email or password not provided.")
-        return {
+        return 
+        {
             'statusCode': 400,
             'body': json.dumps({'error': 'Email and password are required.'})
         }
@@ -31,9 +32,11 @@ def lambda_handler(event, context):
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         hashed_password_str = hashed_password.decode('utf-8')
         logger.info("Password hashed successfully. Time taken: %s seconds", time.time() - hash_start_time)
+
     except Exception as e:
         logger.error("Error hashing password: %s", str(e))
-        return {
+        return 
+        {
             'statusCode': 500,
             'body': json.dumps({'error': 'Error hashing password.', 'message': str(e)})
         }
@@ -50,9 +53,11 @@ def lambda_handler(event, context):
         parameter = ssm_client.get_parameter(Name=parameter_name, WithDecryption=True)
         db_credentials = json.loads(parameter['Parameter']['Value'])
         logger.info("Database credentials retrieved successfully. Time taken: %s seconds", time.time() - parameter_retrieval_start_time)
+
     except Exception as e:
         logger.error("Error retrieving database credentials: %s", str(e))
-        return {
+        return 
+        {
             'statusCode': 500,
             'body': json.dumps({'error': 'Error retrieving database credentials.', 'message': str(e)})
         }
@@ -76,9 +81,11 @@ def lambda_handler(event, context):
             connect_timeout=5
         )
         logger.info("Connected to the database successfully. Time taken: %s seconds", time.time() - db_connection_start_time)
+
     except pymysql.MySQLError as e:
         logger.error("Database connection failed: %s", str(e))
-        return {
+        return 
+        {
             'statusCode': 500,
             'body': json.dumps({'error': 'Database connection failed.', 'message': str(e)})
         }
@@ -87,11 +94,17 @@ def lambda_handler(event, context):
     try:
         db_insert_start_time = time.time()
         with connection.cursor() as cursor:
+            # Insert into UserCred
             sql = "INSERT INTO UserCred (email, password) VALUES (%s, %s)"
             cursor.execute(sql, (email, hashed_password_str))
-            connection.commit()
-            user_id = cursor.lastrowid
-            logger.info("User inserted with user_id: %s. Time taken: %s seconds", user_id, time.time() - db_insert_start_time)
+            user_id = cursor.lastrowid  # Get the new user_id from UserCred
+
+            # Insert into UserInformation with the same user_id
+            sql = "INSERT INTO UserInformation (user_id) VALUES (%s)"
+            cursor.execute(sql, (user_id,))
+            
+            connection.commit()  # Commit both insertions
+            logger.info("User and UserInformation inserted with user_id: %s. Time taken: %s seconds", user_id, time.time() - db_insert_start_time)
     except Exception as e:
         logger.error("Failed to insert user: %s", str(e))
         return {

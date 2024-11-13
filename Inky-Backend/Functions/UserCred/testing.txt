@@ -1,0 +1,5 @@
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"email": "testuser@example.com", "password": "testpass"}' \
+  https://a3hhejg2ij.execute-api.us-east-1.amazonaws.com/Prod/usercredsendpublic
+
