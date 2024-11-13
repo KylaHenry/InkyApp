@@ -23,7 +23,7 @@ Resources:
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello_world/
+      CodeUri: Functions/Example/hello_world
       Handler: app.lambda_handler
       Runtime: python3.9
       Architectures:
@@ -41,7 +41,7 @@ Resources:
   GoodbyeWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: goodbye_world/
+      CodeUri: Functions/Example/goodbye_world/
       Handler: app.lambda_handler
       Runtime: python3.9
       Architectures:
@@ -71,7 +71,7 @@ Resources:
   UserCredReceivePrivateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: Functions/UserCred-Receive-Private/
+      CodeUri: Functions/UserCred/UserCred-Receive-Private/
       Handler: app.lambda_handler
       Runtime: python3.9
       Architectures:
@@ -99,7 +99,7 @@ Resources:
   UserCredSendPublicFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: Functions/UserCred-Send-Public/
+      CodeUri: Functions/UserCred/UserCred-Send-Public/
       Handler: app.lambda_handler
       Runtime: python3.9
       Architectures:
@@ -126,15 +126,6 @@ Resources:
             Auth:
               ApiKeyRequired: false
 
-  MyUsagePlan:
-    Type: AWS::ApiGateway::UsagePlan
-    Properties:
-      UsagePlanName: MyApiUsagePlan
-      Description: "Usage plan for the Inky API with API key requirement"
-      ApiStages:
-        - ApiId: !Ref InkyApi
-          Stage: Prod
-
   MyApiKey:
     Type: AWS::ApiGateway::ApiKey
     Properties:
@@ -148,7 +139,7 @@ Resources:
   TestSecretFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: Functions/test-secret/
+      CodeUri: Functions/Debug/test-secret/
       Handler: app.lambda_handler
       Runtime: python3.9
       Architectures:
@@ -201,12 +192,6 @@ Resources:
       ApiStages:
         - ApiId: !Ref InkyApi
           Stage: Prod  # Use the stage name directly
-
-  MyApiKey:
-    Type: AWS::ApiGateway::ApiKey
-    Properties:
-      Enabled: true
-      Name: MyApiKey
 
 Outputs:
   InkyApiUrl:
