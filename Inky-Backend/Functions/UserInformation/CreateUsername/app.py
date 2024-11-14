@@ -66,7 +66,6 @@ def lambda_handler(event, context):
             'body': json.dumps({'error': 'Database connection failed.', 'message': str(e)})
         }
 
-    # Insert new user into the UserCred table
     try:
         db_insert_start_time = time.time()
         with connection.cursor() as cursor:
