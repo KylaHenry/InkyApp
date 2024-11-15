@@ -4,7 +4,7 @@ import { Link } from 'expo-router';
 export default function HomePage() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to My App!</Text>
+      <Text style={styles.title}>InkyApp</Text>
       <Text style={styles.subtitle}>Your go-to app for awesome features.</Text>
       
       {/* Link to another page */}
@@ -21,12 +21,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#fff',
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   subtitle: {
     fontSize: 18,
@@ -37,4 +36,5 @@ const styles = StyleSheet.create({
     color: '#1E90FF',
     textDecorationLine: 'underline',
   },
+
 });
