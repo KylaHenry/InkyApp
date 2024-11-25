@@ -8,7 +8,7 @@ export default function HomePage() {
       <Text style={styles.subtitle}>Your go-to app for awesome features.</Text>
       
       {/* Link to another page */}
-      <Link href="/(tabs)" style={styles.link}>
+      <Link href="/tabs" style={styles.link}>
         Go to Dashboard
       </Link>
     </View>

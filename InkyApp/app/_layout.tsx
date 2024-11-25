@@ -1,3 +1,4 @@
+// app/layout.tsx
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -6,7 +7,7 @@ import { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import SideBar from '@/components/SideBar'; // Import the sidebar
+import SideBar from '@/components/SideBar'; // Ensure correct import path
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -36,7 +37,7 @@ export default function RootLayout() {
         <View style={styles.content}>
           <Stack>
             <Stack.Screen name="index" options={{ title: 'Home' }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="tabs" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
         </View>
