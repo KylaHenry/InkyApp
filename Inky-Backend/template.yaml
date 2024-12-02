@@ -126,6 +126,63 @@ Resources:
             Auth:
               ApiKeyRequired: false
 
+  loginprivate:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: Functions/Login/loginprivate/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Timeout: 10
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - subnet-0cf6afa526ab19556
+          - subnet-0038a371c59bbe948
+      Environment:
+        Variables:
+          DB_PARAMETER_NAME: "/database/credentials"  # Parameter Store name
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - AWSLambdaBasicExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "ssm:GetParameter"
+              Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/database/credentials"
+
+  loginpublic:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: Functions/Login/loginpublic/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Timeout: 10
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "lambda:InvokeFunction"
+              Resource: !GetAtt loginprivate.Arn
+      Environment:
+        Variables:
+          PRIVATE_FUNCTION_ARN: !GetAtt loginprivate.Arn
+      Events:
+        UserCredSendPublicEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InkyApi
+            Path: /loginpublic
+            Method: post
+            Auth:
+              ApiKeyRequired: false
 
   CreateUsernameFunction:
     Type: AWS::Serverless::Function

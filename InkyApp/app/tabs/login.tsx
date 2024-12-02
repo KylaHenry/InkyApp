@@ -1,14 +1,48 @@
+// app/login.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import axios from 'axios';
+import { Link } from 'expo-router';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Add your login logic here
-    console.log('Email:', email);
-    console.log('Password:', password);
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('https://owfmsf2mr44wbryxtjnvunwhta0gtwmq.lambda-url.us-east-1.on.aws/', {
+        email,
+        password,
+      });
+  
+      console.log('Response status:', response.status);
+      console.log('Response data:', response.data);
+  
+      // Check if login was successful based on the HTTP status code
+      if (response.status === 200) {
+        console.log('Login successful:', response.data);
+        // Store the token and navigate to the next screen as needed
+        const token = response.data.token;
+        // For example, save the token to AsyncStorage or update your app state
+      } else {
+        console.log('Login failed:', response.data.error || response.data.message);
+        // Show error message to the user
+      }
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.log('Login failed:', error.response.data.error || error.response.data.message);
+        // Show error message to the user
+      } else if (error.request) {
+        // No response received from the server
+        console.error('No response received:', error.request);
+        // Show network error message to the user
+      } else {
+        // An error occurred in setting up the request
+        console.error('An error occurred:', error.message);
+        // Show a generic error message to the user
+      }
+    }
   };
 
   return (
@@ -50,8 +84,11 @@ export default function LoginScreen() {
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
 
+        {/* Navigation Link to Register Screen */}
         <TouchableOpacity style={styles.registerLink}>
-          <Text style={styles.registerText}>New user? Register</Text>
+          <Link href="/tabs/register" asChild>
+            <Text style={styles.registerText}>New user? Register</Text>
+          </Link>
         </TouchableOpacity>
       </View>
     </View>

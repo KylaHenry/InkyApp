@@ -54,4 +54,22 @@ manifest_hash = "d41d8cd98f00b204e9800998ecf8427e"
 packagetype = "Zip"
 functions = ["CreateUsernameFunction"]
 
+[function_build_definitions.c314dd27-bd56-4223-b866-93ecad6da7f6]
+codeuri = "/mnt/c/users/brian/Documents/Scripts/Projects/InkyApp/Inky-Backend/Functions/Login/loginprivate"
+runtime = "python3.9"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = "1bb1909efe3794a4ec4bf55ea3b4f319"
+packagetype = "Zip"
+functions = ["loginprivate"]
+
+[function_build_definitions.05f2d023-93e4-4693-a5c3-8f56c7127d6c]
+codeuri = "/mnt/c/users/brian/Documents/Scripts/Projects/InkyApp/Inky-Backend/Functions/Login/loginpublic"
+runtime = "python3.9"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = "1bb1909efe3794a4ec4bf55ea3b4f319"
+packagetype = "Zip"
+functions = ["loginpublic"]
+
 [layer_build_definitions]

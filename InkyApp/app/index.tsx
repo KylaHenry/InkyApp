@@ -1,5 +1,15 @@
 import { StyleSheet, View, Text } from 'react-native';
 import { Link } from 'expo-router';
+import { AuthProvider } from './context/AuthContext';
+import { Slot } from 'expo-router';
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Slot />
+    </AuthProvider>
+  );
+}
 
 export default function HomePage() {
   return (

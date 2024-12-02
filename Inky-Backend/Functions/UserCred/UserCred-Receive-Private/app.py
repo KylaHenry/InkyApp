@@ -1,8 +1,9 @@
+# usercredprivate.py
+
 import json
 import pymysql
 import os
 import boto3
-import bcrypt
 import logging
 import time
 
@@ -20,25 +21,9 @@ def lambda_handler(event, context):
 
     if not email or not password:
         logger.error("Email or password not provided.")
-        return 
-        {
+        return {
             'statusCode': 400,
             'body': json.dumps({'error': 'Email and password are required.'})
-        }
-
-    # Hash the password
-    try:
-        hash_start_time = time.time()
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        hashed_password_str = hashed_password.decode('utf-8')
-        logger.info("Password hashed successfully. Time taken: %s seconds", time.time() - hash_start_time)
-
-    except Exception as e:
-        logger.error("Error hashing password: %s", str(e))
-        return 
-        {
-            'statusCode': 500,
-            'body': json.dumps({'error': 'Error hashing password.', 'message': str(e)})
         }
 
     # Retrieve database credentials from Parameter Store
@@ -56,8 +41,7 @@ def lambda_handler(event, context):
 
     except Exception as e:
         logger.error("Error retrieving database credentials: %s", str(e))
-        return 
-        {
+        return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Error retrieving database credentials.', 'message': str(e)})
         }
@@ -65,7 +49,7 @@ def lambda_handler(event, context):
     # Database connection parameters
     db_host = db_credentials['host']
     db_username = db_credentials['username']
-    db_password = db_credentials['password']
+    db_password_db = db_credentials['password']  # Renamed to avoid conflict with user password
     db_name = db_credentials['dbname']
     db_port = int(db_credentials.get('port', 3306))
 
@@ -75,7 +59,7 @@ def lambda_handler(event, context):
         connection = pymysql.connect(
             host=db_host,
             user=db_username,
-            password=db_password,
+            password=db_password_db,
             database=db_name,
             port=db_port,
             connect_timeout=5
@@ -84,24 +68,34 @@ def lambda_handler(event, context):
 
     except pymysql.MySQLError as e:
         logger.error("Database connection failed: %s", str(e))
-        return 
-        {
+        return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Database connection failed.', 'message': str(e)})
         }
 
-    # Insert new user into the UserCred table
+    # Insert new user into the UserCred table without hashing the password
     try:
         db_insert_start_time = time.time()
         with connection.cursor() as cursor:
+            # Check if email already exists to enforce uniqueness
+            check_sql = "SELECT COUNT(*) FROM UserCred WHERE email = %s"
+            cursor.execute(check_sql, (email,))
+            count = cursor.fetchone()[0]
+            if count > 0:
+                logger.warning("Attempt to register with existing email: %s", email)
+                return {
+                    'statusCode': 409,  # Conflict
+                    'body': json.dumps({'error': 'Email already registered.'})
+                }
+
             # Insert into UserCred
             sql = "INSERT INTO UserCred (email, password) VALUES (%s, %s)"
-            cursor.execute(sql, (email, hashed_password_str))
+            cursor.execute(sql, (email, password))
             user_id = cursor.lastrowid  # Get the new user_id from UserCred
 
             # Insert into UserInformation with the same user_id
-            sql = "INSERT INTO UserInformation (user_id) VALUES (%s)"
-            cursor.execute(sql, (user_id,))
+            sql_info = "INSERT INTO UserInformation (user_id) VALUES (%s)"
+            cursor.execute(sql_info, (user_id,))
             
             connection.commit()  # Commit both insertions
             logger.info("User and UserInformation inserted with user_id: %s. Time taken: %s seconds", user_id, time.time() - db_insert_start_time)
@@ -120,6 +114,6 @@ def lambda_handler(event, context):
 
     # Return success response
     return {
-        'statusCode': 200,
+        'statusCode': 201,  # Created
         'body': json.dumps({'message': 'User created successfully.', 'user_id': user_id})
     }

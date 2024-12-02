@@ -15,7 +15,7 @@ def lambda_handler(event, context):
         body = json.loads(event['body'])
         email = body['email']
         password = body['password']
-        logger.info("Extracted email and password from request.")
+        logger.info("Extracted email and password from request!")
     except (KeyError, TypeError, json.JSONDecodeError) as e:
         logger.error("Error parsing input: %s", str(e))
         return {
