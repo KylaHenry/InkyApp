@@ -1,47 +1,65 @@
 // app/login.tsx
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, ActivityIndicator } from 'react-native';
 import axios from 'axios';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import { AuthContext } from '../context/AuthContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useContext(AuthContext);
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter both email and password.');
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const response = await axios.post('https://owfmsf2mr44wbryxtjnvunwhta0gtwmq.lambda-url.us-east-1.on.aws/', {
         email,
         password,
       });
-  
+
       console.log('Response status:', response.status);
       console.log('Response data:', response.data);
-  
-      // Check if login was successful based on the HTTP status code
-      if (response.status === 200) {
+
+      if (response.status === 200 && response.data.token) {
         console.log('Login successful:', response.data);
-        // Store the token and navigate to the next screen as needed
         const token = response.data.token;
-        // For example, save the token to AsyncStorage or update your app state
+        login(token);
+        router.replace('/tabs/home');
       } else {
         console.log('Login failed:', response.data.error || response.data.message);
-        // Show error message to the user
+        Alert.alert('Login Failed', response.data.error || 'An unknown error occurred.');
       }
-    } catch (error) {
-      if (error.response) {
-        // Server responded with a status other than 2xx
-        console.log('Login failed:', error.response.data.error || error.response.data.message);
-        // Show error message to the user
-      } else if (error.request) {
-        // No response received from the server
-        console.error('No response received:', error.request);
-        // Show network error message to the user
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // Server responded with a status other than 2xx
+          console.log('Login failed:', error.response.data.error || error.response.data.message);
+          Alert.alert('Login Failed', error.response.data.error || 'Invalid email or password.');
+        } else if (error.request) {
+          // No response received
+          console.error('No response received:', error.request);
+          Alert.alert('Error', 'No response from server. Please try again later.');
+        } else {
+          // Error setting up the request
+          console.error('Error setting up request:', error.message);
+          Alert.alert('Error', 'An error occurred. Please try again.');
+        }
       } else {
-        // An error occurred in setting up the request
-        console.error('An error occurred:', error.message);
-        // Show a generic error message to the user
+        console.error('Unexpected error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,8 +68,8 @@ export default function LoginScreen() {
       {/* Logo */}
       <View style={styles.logoContainer}>
         <Image
-          source={{ uri: 'https://your-logo-url.com/logo.png' }} // Replace with your logo URL
-          style={styles.logo}
+          //source={{ uri: 'https://your-logo-url.com/logo.png' }} // Replace with your logo URL
+          //style={styles.logo}
         />
         <Text style={styles.logoText}>Inky</Text>
       </View>
@@ -62,10 +80,12 @@ export default function LoginScreen() {
 
         <TextInput
           style={styles.input}
-          placeholder="Username or email"
+          placeholder="Email"
           placeholderTextColor="#aaa"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
         />
         <TextInput
           style={styles.input}
@@ -76,12 +96,10 @@ export default function LoginScreen() {
           onChangeText={setPassword}
         />
 
-        <TouchableOpacity style={styles.forgotPassword}>
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-        </TouchableOpacity>
+        {/* Role Selection Removed */}
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Sign In</Text>
+        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
         </TouchableOpacity>
 
         {/* Navigation Link to Register Screen */}
@@ -96,6 +114,7 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
+  // ... your existing styles
   container: {
     flex: 1,
     backgroundColor: '#121212',
@@ -142,14 +161,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 15,
   },
-  forgotPassword: {
-    alignItems: 'flex-end',
-    marginBottom: 20,
-  },
-  forgotPasswordText: {
-    color: '#ff4500',
-    fontSize: 14,
-  },
+
   button: {
     backgroundColor: '#ff4500',
     paddingVertical: 15,
